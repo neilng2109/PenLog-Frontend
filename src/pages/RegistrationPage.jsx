@@ -199,6 +199,25 @@ export default function RegistrationPage() {
               />
             </div>
 
+            <div className="form-group">
+              <label htmlFor="trade">Trade / Specialty *</label>
+              <select 
+                id="trade" 
+                name="trade" 
+                value={formData.trade || ''}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select your trade</option>
+                <option value="Electrical">Electrical</option>
+                <option value="HVAC">HVAC</option>
+                <option value="Plumbing">Plumbing</option>
+                <option value="Steelwork">Steelwork</option>
+                <option value="Joinery">Joinery</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
             {/* Info Box */}
             <div className="p-3 bg-teal-50 rounded-lg border border-teal-200">
               <p className="text-xs text-teal-900">
