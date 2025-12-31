@@ -14,6 +14,7 @@ import PenetrationsTable from '../components/PenetrationsTable'
 import CompletionPieChart from '../components/CompletionPieChart'
 import PenDetailModal from '../components/PenDetailModal'
 import AddPenModal from '../components/AddPenModal'
+import ProjectInviteLink from '../components/ProjectInviteLink'
 
 export default function DashboardPage() {
   const { projectId } = useParams()
@@ -197,6 +198,10 @@ export default function DashboardPage() {
             color="orange"
             subtitle="<2 photos"
           />
+        </div>
+		
+		<div className="mb-6">
+          <ProjectInviteLink projectId={projectId} />
         </div>
 
         {/* Charts Row */}
