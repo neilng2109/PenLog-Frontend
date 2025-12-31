@@ -8,9 +8,10 @@ export default function RegistrationPage() {
   const { inviteCode } = useParams()
   
   const [formData, setFormData] = useState({
-    company_name: '',
-    contact_person: '',
-    contact_email: ''
+    company: '',
+    name: '',
+    email: '',
+    trade: ''
   })
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState(null)
@@ -42,14 +43,14 @@ export default function RegistrationPage() {
     setError(null)
     
     // Validate
-    if (!formData.company_name || !formData.contact_person || !formData.contact_email) {
+    if (!formData.company || !formData.name || !formData.email || !formData.trade) {
       setError('All fields are required')
       return
     }
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(formData.contact_email)) {
+    if (!emailRegex.test(formData.email)) {
       setError('Please enter a valid email address')
       return
     }
@@ -144,14 +145,14 @@ export default function RegistrationPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Company Name */}
             <div>
-              <label htmlFor="company_name" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
                 Company Name <span className="text-red-500">*</span>
               </label>
               <input
-                id="company_name"
-                name="company_name"
+                id="company"
+                name="company"
                 type="text"
-                value={formData.company_name}
+                value={formData.company}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 placeholder="e.g., MIVAN Construction"
@@ -165,14 +166,14 @@ export default function RegistrationPage() {
 
             {/* Contact Person */}
             <div>
-              <label htmlFor="contact_person" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                 Your Name <span className="text-red-500">*</span>
               </label>
               <input
-                id="contact_person"
-                name="contact_person"
+                id="name"
+                name="name"
                 type="text"
-                value={formData.contact_person}
+                value={formData.name}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 placeholder="e.g., John Smith"
@@ -183,14 +184,14 @@ export default function RegistrationPage() {
 
             {/* Contact Email */}
             <div>
-              <label htmlFor="contact_email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 Email Address <span className="text-red-500">*</span>
               </label>
               <input
-                id="contact_email"
-                name="contact_email"
+                id="email"
+                name="email"
                 type="email"
-                value={formData.contact_email}
+                value={formData.email}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 placeholder="e.g., john@mivan.com"
@@ -199,14 +200,19 @@ export default function RegistrationPage() {
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="trade">Trade / Specialty *</label>
+            {/* Trade / Specialty */}
+            <div>
+              <label htmlFor="trade" className="block text-sm font-medium text-gray-700 mb-1">
+                Trade / Specialty <span className="text-red-500">*</span>
+              </label>
               <select 
                 id="trade" 
                 name="trade" 
-                value={formData.trade || ''}
+                value={formData.trade}
                 onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 required
+                disabled={submitMutation.isLoading}
               >
                 <option value="">Select your trade</option>
                 <option value="Electrical">Electrical</option>
@@ -214,6 +220,8 @@ export default function RegistrationPage() {
                 <option value="Plumbing">Plumbing</option>
                 <option value="Steelwork">Steelwork</option>
                 <option value="Joinery">Joinery</option>
+                <option value="Penetration Sealing">Penetration Sealing</option>
+                <option value="Fire Protection">Fire Protection</option>
                 <option value="Other">Other</option>
               </select>
             </div>
@@ -244,4 +252,3 @@ export default function RegistrationPage() {
     </div>
   )
 }
- 
