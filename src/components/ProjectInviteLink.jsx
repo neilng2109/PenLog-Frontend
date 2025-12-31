@@ -18,7 +18,7 @@ export default function ProjectInviteLink({ projectId }) {
       setLoading(true);
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/projects/${projectId}/invite-code`,
+        `${import.meta.env.VITE_API_URL}/projects/${projectId}/invite-code`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }
