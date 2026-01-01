@@ -26,31 +26,36 @@ export default function ContractorReportPage() {
   })
 
   const submitMutation = useMutation({
-    mutationFn: async ({ penId, action, notes }) => {
-      const statusResponse = await reportAPI.submit(token, {
-        pen_id: penId,  // Backend expects pen_id not penId
-        action,
-        notes
+  mutationFn: async ({ penId, action, notes }) => {
+    const statusResponse = await reportAPI.submit(token, {
+      pen_id: penId,
+      action,
+      notes
+    })
+    
+    if (photos.length > 0) {
+      const uploadPromises = photos.map(photo => {
+        const formData = new FormData()
+        formData.append('file', photo)
+        formData.append('penetration_id', penId)
+        formData.append('photo_type', action === 'open' ? 'opening' : 'closing')
+        return photosAPI.upload(formData)
       })
-      
-      if (photos.length > 0) {
-        const uploadPromises = photos.map(photo => {
-          const formData = new FormData()
-          formData.append('file', photo)
-          formData.append('penetration_id', penId)
-          formData.append('photo_type', action === 'open' ? 'opening' : 'closing')
-          return photosAPI.upload(formData)
-        })
-        await Promise.all(uploadPromises)
-      }
-      
-      return statusResponse
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['contractor-report', token])
-      setSubmitSuccess(true)
+      await Promise.all(uploadPromises)
     }
-  })
+    
+    return statusResponse
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries(['contractor-report', token])
+    setSubmitSuccess(true)
+    resetForm() // Clear form data
+  },
+  onError: (error) => {
+    console.error('Submit error:', error)
+    alert(error.response?.data?.error || 'Failed to submit report')
+  }
+})
 
   const handlePhotoChange = (e) => {
     const files = Array.from(e.target.files)
@@ -469,7 +474,6 @@ export default function ContractorReportPage() {
             id="photo-upload"
             type="file"
             accept="image/*"
-            capture="environment"
             multiple
             onChange={handlePhotoChange}
             className="hidden"
