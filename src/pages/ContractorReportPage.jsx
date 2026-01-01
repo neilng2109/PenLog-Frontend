@@ -25,7 +25,7 @@ export default function ContractorReportPage() {
     refetchInterval: 30000
   })
 
-  const submitMutation = useMutation({
+ const submitMutation = useMutation({
   mutationFn: async ({ penId, action, notes }) => {
     const statusResponse = await reportAPI.submit(token, {
       pen_id: penId,
@@ -39,7 +39,8 @@ export default function ContractorReportPage() {
         formData.append('file', photo)
         formData.append('penetration_id', penId)
         formData.append('photo_type', action === 'open' ? 'opening' : 'closing')
-        return photosAPI.upload(formData)
+        // Use reportAPI.uploadPhoto instead of photosAPI.upload
+        return reportAPI.uploadPhoto(token, formData)
       })
       await Promise.all(uploadPromises)
     }
@@ -49,7 +50,7 @@ export default function ContractorReportPage() {
   onSuccess: () => {
     queryClient.invalidateQueries(['contractor-report', token])
     setSubmitSuccess(true)
-    resetForm() // Clear form data
+    resetForm()
   },
   onError: (error) => {
     console.error('Submit error:', error)
