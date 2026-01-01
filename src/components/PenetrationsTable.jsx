@@ -101,8 +101,8 @@ export default function PenetrationsTable({ data, onRowClick }) {
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-      {/* Table */}
-      <div className="overflow-x-auto">
+      {/* Desktop Table View - hidden on mobile */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50 border-b border-gray-200">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -148,8 +148,88 @@ export default function PenetrationsTable({ data, onRowClick }) {
         </table>
       </div>
 
+      {/* Mobile Card View - only visible on mobile */}
+      <div className="md:hidden divide-y divide-gray-200">
+        {table.getRowModel().rows.map((row) => {
+          const pen = row.original
+          const photoCount = pen.photo_count || 0
+          const photoColorClass = photoCount === 0 
+            ? 'bg-red-100 text-red-700 border-red-200' 
+            : photoCount === 1 
+            ? 'bg-yellow-100 text-yellow-700 border-yellow-200'
+            : 'bg-green-100 text-green-700 border-green-200'
+
+          return (
+            <div
+              key={row.id}
+              onClick={() => onRowClick(pen)}
+              className="p-4 hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition-colors"
+            >
+              {/* Header Row: Pen # and Status */}
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <div className="text-lg font-bold text-gray-900">
+                    Pen {pen.pen_id}
+                  </div>
+                  <div className="text-sm text-gray-600 mt-0.5">
+                    {pen.contractor_name}
+                  </div>
+                </div>
+                <StatusBadge status={pen.status} />
+              </div>
+
+              {/* Location */}
+              {pen.location && (
+                <div className="text-sm font-medium text-gray-900 mb-2">
+                  📍 {pen.location}
+                </div>
+              )}
+
+              {/* Details Grid */}
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm mb-3">
+                <div>
+                  <span className="text-gray-500">Deck:</span>{' '}
+                  <span className="font-medium text-gray-900">{pen.deck}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500">Fire Zone:</span>{' '}
+                  <span className="font-medium text-gray-900">{pen.fire_zone}</span>
+                </div>
+                {pen.frame && (
+                  <div>
+                    <span className="text-gray-500">Frame:</span>{' '}
+                    <span className="font-medium text-gray-900">{pen.frame}</span>
+                  </div>
+                )}
+                {pen.pen_type && (
+                  <div>
+                    <span className="text-gray-500">Type:</span>{' '}
+                    <span className="font-medium text-gray-900">{pen.pen_type}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Dates and Photos Row */}
+              <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                <div className="flex flex-col gap-1 text-xs text-gray-600">
+                  {pen.opened_at && (
+                    <div>Opened: {formatDate(pen.opened_at)}</div>
+                  )}
+                  {pen.completed_at && (
+                    <div>Completed: {formatDate(pen.completed_at)}</div>
+                  )}
+                </div>
+                <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded border ${photoColorClass}`}>
+                  📷 {photoCount}
+                </span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
       {/* Pagination */}
-      <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+      <div className="px-4 md:px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="text-sm text-gray-700">
           Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{' '}
           {Math.min(
