@@ -169,17 +169,17 @@ export default function DashboardPage() {
         {/* Project Header */}
         <ProjectHeader project={project} />
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-5 gap-4 mb-6">
+        {{/* Stats Cards - responsive grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 mb-6">
           <StatCard
             title="Total Penetrations"
             value={stats.total}
             color="gray"
-          />
-          <StatCard
-            title="Currently Open"
-            value={stats.open}
-            color="red"
+           />
+           <StatCard
+             title="Currently Open"
+             value={stats.open}
+             color="red"
           />
           <StatCard
             title="Pending Verification"
@@ -204,76 +204,81 @@ export default function DashboardPage() {
           <ProjectInviteLink projectId={projectId} />
         </div>
 
-        {/* Charts Row */}
-        <div className="grid grid-cols-2 gap-6 mb-6">
+        {/* Charts Row - stack on mobile, side by side on desktop */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
           <CompletionPieChart stats={stats} />
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">By Contractor</h3>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6">
+            <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-4">By Contractor</h3>
             <div className="space-y-3">
               {contractors.slice(0, 5).map((contractor) => {
-                // Calculate completion rate from verified/total
                 const completionRate = contractor.total > 0 
                   ? Math.round((contractor.verified / contractor.total) * 100)
                   : 0
-                
-                return (
-                  <div key={contractor.id} className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">{contractor.name}</span>
-                    <div className="flex items-center gap-3">
-                      <div className="w-32 bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-teal-500 h-2 rounded-full"
-                          style={{ width: `${completionRate}%` }}
-                        />
-                      </div>
-                      <span className="text-sm text-gray-600 w-12 text-right">
-                        {completionRate}%
-                      </span>
-                    </div>
-                  </div>
-                )
-              })}
+        
+        return (
+          <div key={contractor.id} className="flex items-center justify-between gap-3">
+            <span className="text-sm font-medium text-gray-700 truncate flex-shrink min-w-0">
+              {contractor.name}
+            </span>
+            <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+              <div className="w-20 md:w-32 bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-teal-500 h-2 rounded-full"
+                  style={{ width: `${completionRate}%` }}
+                />
+              </div>
+              <span className="text-sm text-gray-600 w-10 md:w-12 text-right">
+                {completionRate}%
+              </span>
             </div>
           </div>
-        </div>
+        )
+      })}
+    </div>
+  </div>
+</div>
 
         {/* Contractor Tabs with Add Button */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex-1">
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
+          <div className="flex-1 overflow-x-auto">
             <ContractorTabs
               contractors={contractors}
               activeContractor={activeContractor}
               onSelectContractor={setActiveContractor}
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={handleExportCompletePackage}
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg flex items-center gap-2 transition-colors shadow-lg hover:shadow-xl"
+              className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg hover:shadow-xl"
             >
-              <FileText className="w-5 h-5" />
-              Complete Package
+              <FileText className="w-4 md:w-5 h-4 md:h-5" />
+              <span className="hidden sm:inline">Complete Package</span>
+              <span className="sm:hidden">Package</span>
             </button>
             <button
               onClick={handleExportExcel}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg flex items-center gap-2 transition-colors shadow-lg hover:shadow-xl"
+              className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg hover:shadow-xl"
             >
-              <FileText className="w-5 h-5" />
-              Export Excel
+              <FileText className="w-4 md:w-5 h-4 md:h-5" />
+              <span className="hidden sm:inline">Export Excel</span>
+              <span className="sm:hidden">Excel</span>
             </button>
             <button
               onClick={handleExportPDF}
-              className="px-4 py-2 bg-navy-700 hover:bg-navy-800 text-white font-medium rounded-lg flex items-center gap-2 transition-colors shadow-lg hover:shadow-xl"
+              className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-navy-700 hover:bg-navy-800 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg hover:shadow-xl"
             >
-              <FileText className="w-5 h-5" />
-              Export PDF
+              <FileText className="w-4 md:w-5 h-4 md:h-5" />
+              <span className="hidden sm:inline">Export PDF</span>
+              <span className="sm:hidden">PDF</span>
             </button>
             <button
               onClick={() => setShowAddPen(true)}
-              className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg flex items-center gap-2 transition-colors shadow-lg hover:shadow-xl"
+              className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg hover:shadow-xl"
             >
-              <Plus className="w-5 h-5" />
-              Add New Pen
+              <Plus className="w-4 md:w-5 h-4 md:h-5" />
+              <span className="hidden sm:inline">Add New Pen</span>
+              <span className="sm:hidden">Add Pen</span>
             </button>
           </div>
         </div>

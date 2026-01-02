@@ -95,7 +95,7 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 text-center text-sm text-gray-600">
-            <p>Default credentials:</p>
+            <p></p>
             <p className="font-mono text-xs mt-1"> / </p>
           </div>
         </div>
