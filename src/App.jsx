@@ -30,7 +30,6 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/join/:inviteCode" element={<RegistrationPage />} />
         <Route path="/report/:token" element={<ContractorReportPage />} />
-		<Route path="/admin/access-requests" element={<PrivateRoute><AccessRequestsPage /></PrivateRoute>} />
         
         {/* Protected Routes */}
         <Route
@@ -62,6 +61,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ContractorLinksPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/access-requests"
+          element={
+            <ProtectedRoute>
+              <AccessRequestsPage />
             </ProtectedRoute>
           }
         />
