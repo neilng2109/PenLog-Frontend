@@ -28,9 +28,11 @@ export default function AccessRequestsPage() {
     mutationFn: (requestId) => adminAPI.approveAccessRequest(requestId),
     onSuccess: (response) => {
       queryClient.invalidateQueries(['access-requests'])
-      setApprovedPassword(response.data.temporary_password)
       setSelectedRequest(null)
-      alert(`✅ User approved!\n\nEmail: ${response.data.user.email}\nTemporary Password: ${response.data.temporary_password}\n\nMake sure to send them this password!`)
+      setApprovedPassword({
+        email: response.data.user.email,
+        password: response.data.temporary_password
+      })
     },
     onError: (error) => {
       alert(error.response?.data?.error || 'Failed to approve request')
@@ -203,6 +205,74 @@ export default function AccessRequestsPage() {
           </div>
         )}
       </main>
+	  
+	  </main>
+
+      {/* Password Display Modal */}
+      {approvedPassword && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">✅ User Approved!</h3>
+            
+            <div className="space-y-3 mb-6">
+              <div>
+                <label className="text-sm font-medium text-gray-700">Username / Email:</label>
+                <div className="flex gap-2 mt-1">
+                  <input
+                    type="text"
+                    value={approvedPassword.email}
+                    readOnly
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded bg-gray-50 font-mono text-sm"
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(approvedPassword.email)
+                      alert('Email copied!')
+                    }}
+                    className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-1"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium text-gray-700">Temporary Password:</label>
+                <div className="flex gap-2 mt-1">
+                  <input
+                    type="text"
+                    value={approvedPassword.password}
+                    readOnly
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded bg-yellow-50 font-mono text-sm"
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(approvedPassword.password)
+                      alert('Password copied!')
+                    }}
+                    className="px-3 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded flex items-center gap-1"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
+              <p className="text-sm text-blue-900">
+                <strong>Important:</strong> Send these credentials to the user via email. They should change their password after first login.
+              </p>
+            </div>
+            
+            <button
+              onClick={() => setApprovedPassword(null)}
+              className="w-full px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
