@@ -169,7 +169,7 @@ export default function DashboardPage() {
         {/* Project Header */}
         <ProjectHeader project={project} />
 
-        {{/* Stats Cards - responsive grid */}
+        {/* Stats Cards - responsive grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 mb-6">
           <StatCard
             title="Total Penetrations"
