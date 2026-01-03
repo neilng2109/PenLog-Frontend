@@ -136,6 +136,12 @@ export default function DashboardPage() {
               >
                 ← Projects
               </button>
+			  <button
+                onClick={() => navigate('/admin/access-requests')}
+                className="text-sm font-medium text-gray-700 hover:text-gray-900"
+              >
+                Access Requests
+              </button>
               <button
                 onClick={() => navigate(`/project/${projectId}/approvals`)}
                 className="text-sm font-medium text-gray-700 hover:text-gray-900"

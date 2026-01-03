@@ -9,6 +9,7 @@ import ContractorReportPage from './pages/ContractorReportPage'
 import RegistrationPage from './pages/RegistrationPage'
 import PendingApprovalsPage from './pages/PendingApprovalsPage'
 import ContractorLinksPage from './pages/ContractorLinksPage'
+import AccessRequestsPage from './pages/AccessRequestsPage'
 
 // Protected Route Component
 function ProtectedRoute({ children }) {
@@ -29,6 +30,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/join/:inviteCode" element={<RegistrationPage />} />
         <Route path="/report/:token" element={<ContractorReportPage />} />
+		<Route path="/admin/access-requests" element={<PrivateRoute><AccessRequestsPage /></PrivateRoute>} />
         
         {/* Protected Routes */}
         <Route

@@ -128,6 +128,18 @@ export const registrationAPI = {
   reject: (id, reason) => api.post(`/registration/${id}/reject`, { reason }),
 };
 
+// Admin endpoints
+export const adminAPI = {
+  getAccessRequests: (status = 'pending') => 
+    api.get(`/admin/access-requests?status=${status}`),
+  
+  approveAccessRequest: (requestId) => 
+    api.post(`/admin/access-requests/${requestId}/approve`),
+  
+  rejectAccessRequest: (requestId, reason) => 
+    api.post(`/admin/access-requests/${requestId}/reject`, { reason }),
+}
+
 // Report (Public - no auth)
 export const reportAPI = {
   getForm: (token) => 
