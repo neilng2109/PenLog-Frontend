@@ -16,7 +16,8 @@ export default function AccessRequestsPage() {
   const [statusFilter, setStatusFilter] = useState('pending')
   const [selectedRequest, setSelectedRequest] = useState(null)
   const [approvedPassword, setApprovedPassword] = useState(null)
-
+  const [confirmCopied, setConfirmCopied] = useState(false)
+  
   // Fetch access requests
   const { data: requests = [], isLoading } = useQuery({
     queryKey: ['access-requests', statusFilter],
@@ -208,70 +209,95 @@ export default function AccessRequestsPage() {
 	  
 	 
       {/* Password Display Modal */}
-      {approvedPassword && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">✅ User Approved!</h3>
-            
-            <div className="space-y-3 mb-6">
-              <div>
-                <label className="text-sm font-medium text-gray-700">Username / Email:</label>
-                <div className="flex gap-2 mt-1">
-                  <input
-                    type="text"
-                    value={approvedPassword.email}
-                    readOnly
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded bg-gray-50 font-mono text-sm"
-                  />
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(approvedPassword.email)
-                      alert('Email copied!')
-                    }}
-                    className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-1"
-                  >
-                    <Copy className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-gray-700">Temporary Password:</label>
-                <div className="flex gap-2 mt-1">
-                  <input
-                    type="text"
-                    value={approvedPassword.password}
-                    readOnly
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded bg-yellow-50 font-mono text-sm"
-                  />
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(approvedPassword.password)
-                      alert('Password copied!')
-                    }}
-                    className="px-3 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded flex items-center gap-1"
-                  >
-                    <Copy className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
-              <p className="text-sm text-blue-900">
-                <strong>Important:</strong> Send these credentials to the user via email. They should change their password after first login.
-              </p>
-            </div>
-            
-            <button
-              onClick={() => setApprovedPassword(null)}
-              className="w-full px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+		{approvedPassword && (
+		  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+			<div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+			  <h3 className="text-lg font-bold text-gray-900 mb-4">✅ User Approved!</h3>
+			  
+			  <div className="space-y-3 mb-6">
+				<div>
+				  <label className="text-sm font-medium text-gray-700">Username / Email:</label>
+				  <div className="flex gap-2 mt-1">
+					<input
+					  type="text"
+					  value={approvedPassword.email}
+					  readOnly
+					  className="flex-1 px-3 py-2 border border-gray-300 rounded bg-gray-50 font-mono text-sm select-text"
+					  onFocus={(e) => e.target.select()}
+					/>
+					<button
+					  onClick={() => {
+						navigator.clipboard.writeText(approvedPassword.email)
+						alert('Email copied!')
+					  }}
+					  className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded flex items-center gap-1"
+					>
+					  <Copy className="w-4 h-4" />
+					</button>
+				  </div>
+				</div>
+				
+				<div>
+				  <label className="text-sm font-medium text-gray-700">Temporary Password:</label>
+				  <div className="flex gap-2 mt-1">
+					<input
+					  type="text"
+					  value={approvedPassword.password}
+					  readOnly
+					  className="flex-1 px-3 py-2 border border-gray-300 rounded bg-yellow-50 font-mono text-sm select-text"
+					  onFocus={(e) => e.target.select()}
+					/>
+					<button
+					  onClick={() => {
+						navigator.clipboard.writeText(approvedPassword.password)
+						alert('Password copied!')
+					  }}
+					  className="px-3 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded flex items-center gap-1"
+					>
+					  <Copy className="w-4 h-4" />
+					</button>
+				  </div>
+				</div>
+			  </div>
+			  
+			  <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
+				<p className="text-sm text-blue-900">
+				  <strong>Important:</strong> Send these credentials to the user via email. They should change their password after first login.
+				</p>
+			  </div>
+			  
+			  <div className="bg-red-50 border border-red-200 rounded p-3 mb-4">
+				<p className="text-sm text-red-900 font-medium">
+				  ⚠️ Warning: Once you close this window, the password cannot be retrieved!
+				</p>
+			  </div>
+			  
+			  <div className="flex items-start gap-2 mb-4 p-3 bg-gray-50 rounded">
+				<input
+				  type="checkbox"
+				  id="confirm-copied"
+				  checked={confirmCopied}
+				  onChange={(e) => setConfirmCopied(e.target.checked)}
+				  className="w-4 h-4 mt-0.5 text-teal-600 accent-teal-600"
+				/>
+				<label htmlFor="confirm-copied" className="text-sm text-gray-700 cursor-pointer">
+				  I have copied both the email and password and will send them to the user
+				</label>
+			  </div>
+			  
+			  <button
+				onClick={() => {
+				  setApprovedPassword(null)
+				  setConfirmCopied(false)
+				}}
+				disabled={!confirmCopied}
+				className="w-full px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+			  >
+				Close
+			  </button>
+			</div>
+		  </div>
+		)}
     </div>
   )
 }
