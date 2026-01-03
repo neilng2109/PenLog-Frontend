@@ -130,26 +130,25 @@ export default function DashboardPage() {
           <div className="flex items-center gap-6">
             <PenLogLogo size="md" />
             <nav className="flex gap-4">
-              <button
-                onClick={() => navigate('/')}
-                className="text-sm font-medium text-gray-700 hover:text-gray-900"
-              >
-                ← Projects
-              </button>
 			  <button
-                onClick={() => navigate('/admin/access-requests')}
-                className="text-sm font-medium text-gray-700 hover:text-gray-900"
-              >
-               
-                Approvals
-              </button>
-              <button
-                onClick={() => navigate(`/project/${projectId}/contractor-links`)}
-                className="text-sm font-medium text-gray-700 hover:text-gray-900"
-              >
-                Contractor Links
-              </button>
-            </nav>
+				onClick={() => navigate('/')}
+				className="text-sm font-medium text-gray-700 hover:text-gray-900"
+			  >
+				← Projects
+			  </button>
+			  <button
+				onClick={() => navigate(`/project/${projectId}/approvals`)}
+				className="text-sm font-medium text-gray-700 hover:text-gray-900"
+			  >
+				Approvals
+			  </button>
+			  <button
+				onClick={() => navigate(`/project/${projectId}/contractor-links`)}
+				className="text-sm font-medium text-gray-700 hover:text-gray-900"
+			  >
+				Contractor Links
+			  </button>
+			</nav>
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-600">
