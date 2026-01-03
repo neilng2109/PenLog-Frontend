@@ -145,26 +145,28 @@ export default function PendingApprovalsPage() {
         </div>
 
         {isLoading ? (
-          <div className="text-center py-12">
-            <div className="text-gray-500">Loading registrations...</div>
-          </div>
-        ) : registrations.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-            <div className="text-gray-400 text-5xl mb-4">✓</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              No Pending Approvals
-            </h3>
-            <p className="text-gray-600">
-              All contractor registrations have been processed.
-            </p>
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg inline-block">
-              <p className="text-sm text-blue-900">
-                <strong>Share invitation link:</strong><br />
-                <code className="text-xs">http://localhost:3000/join/1</code>
-              </p>
-            </div>
-          </div>
-        ) : (
+		  <div className="text-center py-12">
+			<div className="text-gray-500">Loading registrations...</div>
+		  </div>
+		) : registrations.length === 0 ? (
+		  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+			<div className="text-gray-400 text-5xl mb-4">✓</div>
+			<h3 className="text-xl font-semibold text-gray-900 mb-2">
+			  No Pending Approvals
+			</h3>
+			<p className="text-gray-600">
+			  All contractor registrations have been processed.
+			</p>
+			<div className="mt-6 p-4 bg-blue-50 rounded-lg inline-block">
+			  <p className="text-sm text-blue-900">
+				<strong>Share invitation link from the dashboard</strong><br />
+				<span className="text-xs text-gray-600">
+				  Go to the project dashboard to generate contractor invitation links
+				</span>
+			  </p>
+			</div>
+		  </div>
+		) : (
           <div className="space-y-4">
             {registrations.map((registration) => (
               <div
