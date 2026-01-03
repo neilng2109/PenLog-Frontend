@@ -37,7 +37,6 @@ export default function ProjectsPage() {
 
 const pendingCount = pendingRequests.length
 	
-  })
 
   // Archive project mutation
   const archiveMutation = useMutation({
