@@ -8,6 +8,7 @@ import PenLogLogo from '../components/PenLogLogo'
 import CreateProjectModal from '../components/CreateProjectModal'
 import EditProjectModal from '../components/EditProjectModal'
 import AssignSupervisorModal from '../components/AssignSupervisorModal'
+import { projectsAPI, adminAPI } from '../services/api'
 
 export default function ProjectsPage() {
   const navigate = useNavigate()
@@ -26,6 +27,16 @@ export default function ProjectsPage() {
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['projects'],
     queryFn: () => projectsAPI.getAll().then(res => res.data),
+	
+  // Fetch pending access requests count
+  const { data: pendingRequests = [] } = useQuery({
+    queryKey: ['access-requests-pending'],
+    queryFn: () => adminAPI.getAccessRequests('pending').then(res => res.data),
+    refetchInterval: 30000, // Refresh every 30 seconds
+  })
+
+const pendingCount = pendingRequests.length
+	
   })
 
   // Archive project mutation
@@ -49,22 +60,30 @@ export default function ProjectsPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-6">
-            <PenLogLogo size="md" />
-            <h1 className="text-xl font-semibold text-gray-900">Projects</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">{user?.username}</span>
-            <button
-              onClick={logout}
-              className="text-sm text-gray-600 hover:text-gray-900"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
+	  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+		<PenLogLogo size="lg" />
+		<div className="flex items-center gap-4">
+		  <button
+			onClick={() => navigate('/admin/access-requests')}
+			className="text-sm font-medium text-gray-700 hover:text-gray-900 flex items-center gap-2 transition-colors"
+		  >
+			Access Requests
+			{pendingCount > 0 && (
+			  <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
+				{pendingCount}
+			  </span>
+			)}
+		  </button>
+		  <span className="text-sm text-gray-600">{user?.username}</span>
+		  <button
+			onClick={logout}
+			className="text-sm text-red-600 hover:text-red-800 font-medium"
+		  >
+			Logout
+		  </button>
+		</div>
+	  </div>
+	</header>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
