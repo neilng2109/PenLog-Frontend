@@ -112,7 +112,7 @@ export default function ContractorLinksPage() {
             <h3 className="text-lg font-medium text-gray-900 mb-2">No Approved Contractors</h3>
             <p className="text-gray-500 mb-4">Contractors need to register and be approved before getting access links.</p>
             <button
-              onClick={() => navigate('/approvals')}
+              onClick={() => navigate(`/project/${projectId}/approvals`)}
               className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg transition-colors"
             >
               Go to Approvals
