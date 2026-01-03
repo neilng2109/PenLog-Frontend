@@ -26,7 +26,8 @@ export default function ProjectsPage() {
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['projects'],
     queryFn: () => projectsAPI.getAll().then(res => res.data),
-	
+  })
+  
   // Fetch pending access requests count
   const { data: pendingRequests = [] } = useQuery({
     queryKey: ['access-requests-pending'],
