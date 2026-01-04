@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import useAuthStore from '../stores/authStore'
 import { projectsAPI, penetrationsAPI, dashboardAPI, contractorsAPI, pdfAPI } from '../services/api'
-import { Plus, FileText } from 'lucide-react'
+import { Plus, FileText, Menu, X } from 'lucide-react'
 
 // Components
 import PenLogLogo from '../components/PenLogLogo'
@@ -25,6 +25,7 @@ export default function DashboardPage() {
   const [activeContractor, setActiveContractor] = useState(null)
   const [selectedPen, setSelectedPen] = useState(null)
   const [showAddPen, setShowAddPen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   // Use project ID 1 if not specified (for now)
   const currentProjectId = projectId || 1
@@ -122,50 +123,115 @@ export default function DashboardPage() {
     }
   }
 
+  const handleNavClick = (path) => {
+    navigate(path)
+    setMobileMenuOpen(false)
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-[1920px] mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-6">
-            <PenLogLogo size="md" />
-            <nav className="flex gap-4">
-			  <button
-				onClick={() => navigate('/')}
-				className="text-sm font-medium text-gray-700 hover:text-gray-900"
-			  >
-				← Projects
-			  </button>
-			  <button
-				onClick={() => navigate(`/project/${projectId}/approvals`)}
-				className="text-sm font-medium text-gray-700 hover:text-gray-900"
-			  >
-				Approvals
-			  </button>
-			  <button
-				onClick={() => navigate(`/project/${projectId}/contractor-links`)}
-				className="text-sm font-medium text-gray-700 hover:text-gray-900"
-			  >
-				Contractor Links
-			  </button>
-			</nav>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">
-              {user?.username}
-            </span>
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 py-4">
+          <div className="flex justify-between items-center">
+            {/* Logo */}
+            <div className="flex items-center">
+              <PenLogLogo size="md" />
+            </div>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex gap-4">
+              <button
+                onClick={() => navigate('/')}
+                className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
+              >
+                ← Projects
+              </button>
+              <button
+                onClick={() => navigate(`/project/${projectId}/approvals`)}
+                className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
+              >
+                Approvals
+              </button>
+              <button
+                onClick={() => navigate(`/project/${projectId}/contractor-links`)}
+                className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
+              >
+                Contractor Links
+              </button>
+            </nav>
+
+            {/* Desktop User Menu */}
+            <div className="hidden md:flex items-center gap-4">
+              <span className="text-sm text-gray-600">
+                {user?.username}
+              </span>
+              <button
+                onClick={logout}
+                className="text-sm text-red-600 hover:text-red-800 font-medium transition-colors"
+              >
+                Logout
+              </button>
+            </div>
+
+            {/* Mobile Menu Button */}
             <button
-              onClick={logout}
-              className="text-sm text-red-600 hover:text-red-800 font-medium"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="Toggle menu"
             >
-              Logout
+              {mobileMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
           </div>
+
+          {/* Mobile Menu Dropdown */}
+          {mobileMenuOpen && (
+            <div className="md:hidden mt-4 pt-4 border-t border-gray-200">
+              <nav className="flex flex-col space-y-3">
+                <button
+                  onClick={() => handleNavClick('/')}
+                  className="text-left px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  ← Projects
+                </button>
+                <button
+                  onClick={() => handleNavClick(`/project/${projectId}/approvals`)}
+                  className="text-left px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  Approvals
+                </button>
+                <button
+                  onClick={() => handleNavClick(`/project/${projectId}/contractor-links`)}
+                  className="text-left px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  Contractor Links
+                </button>
+                <div className="border-t border-gray-200 pt-3 mt-3">
+                  <div className="px-4 py-2 text-sm text-gray-600">
+                    {user?.username}
+                  </div>
+                  <button
+                    onClick={() => {
+                      logout()
+                      setMobileMenuOpen(false)
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg font-medium transition-colors"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </nav>
+            </div>
+          )}
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-[1920px] mx-auto px-6 py-8">
+      <main className="max-w-[1920px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Project Header */}
         <ProjectHeader project={project} />
 
