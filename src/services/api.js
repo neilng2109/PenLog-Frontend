@@ -56,7 +56,7 @@ export const projectsAPI = {
   delete: (id) => api.delete(`/projects/${id}?confirm=true`),
   setActive: (id) => api.post(`/projects/${id}/activate`),
   assignSupervisor: (projectId, supervisorId) => 
-    api.post(`/projects/${projectId}/assign-supervisor`, { supervisor_id: supervisorId }),
+    api.put(`/projects/${projectId}/assign-supervisor`, { supervisor_id: supervisorId }),
 };
 
 // Penetrations
