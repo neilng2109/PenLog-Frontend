@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { projectsAPI } from '../services/api'
 import { X, Users } from 'lucide-react'
-import axios from 'axios'
+
 
 export default function AssignSupervisorModal({ project, onClose }) {
   const queryClient = useQueryClient()
@@ -14,25 +14,17 @@ export default function AssignSupervisorModal({ project, onClose }) {
 	  queryFn: () => projectsAPI.getSupervisors().then(res => res.data),
   })
 
-  const assignMutation = useMutation({
-    mutationFn: async (supervisorId) => {
-      const token = localStorage.getItem('token')
-      const response = await axios.put(
-        `http://localhost:5000/api/projects/${project.id}/assign-supervisor`,
-        { supervisor_id: supervisorId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
-      return response.data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['projects'])
-      queryClient.invalidateQueries(['project', project.id])
-      onClose()
-    },
-    onError: (error) => {
-      alert('Failed to assign supervisor: ' + (error.response?.data?.error || error.message))
-    },
-  })
+    const assignMutation = useMutation({
+	  mutationFn: (supervisorId) => projectsAPI.assignSupervisor(project.id, supervisorId),
+	  onSuccess: () => {
+		queryClient.invalidateQueries(['projects'])
+		queryClient.invalidateQueries(['project', project.id])
+		onClose()
+	  },
+	  onError: (error) => {
+		alert('Failed to assign supervisor: ' + (error.response?.data?.error || error.message))
+	  },
+	})
 
   const handleSubmit = (e) => {
     e.preventDefault()
