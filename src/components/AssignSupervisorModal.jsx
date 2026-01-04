@@ -8,16 +8,10 @@ export default function AssignSupervisorModal({ project, onClose }) {
   const queryClient = useQueryClient()
   const [selectedSupervisorId, setSelectedSupervisorId] = useState(project.supervisor_id || '')
 
-  // Fetch all supervisors
-  const { data: supervisors = [] } = useQuery({
-    queryKey: ['supervisors'],
-    queryFn: async () => {
-      const token = localStorage.getItem('token')
-      const response = await axios.get('http://localhost:5000/api/projects/supervisors', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      return response.data
-    },
+    // Fetch all supervisors
+	const { data: supervisors = [] } = useQuery({
+	  queryKey: ['supervisors'],
+	  queryFn: () => projectsAPI.getSupervisors().then(res => res.data),
   })
 
   const assignMutation = useMutation({

@@ -50,10 +50,13 @@ export const projectsAPI = {
   getActive: () => api.get('/projects/active'),
   getStats: (id) => api.get(`/projects/${id}/stats`),
   getDashboard: (id) => api.get(`/projects/${id}/dashboard`),
+  getSupervisors: () => api.get('/projects/supervisors'), // ADD THIS
   create: (projectData) => api.post('/projects', projectData),
   update: (id, projectData) => api.put(`/projects/${id}`, projectData),
   delete: (id) => api.delete(`/projects/${id}?confirm=true`),
   setActive: (id) => api.post(`/projects/${id}/activate`),
+  assignSupervisor: (projectId, supervisorId) => 
+    api.post(`/projects/${projectId}/assign-supervisor`, { supervisor_id: supervisorId }),
 };
 
 // Penetrations
