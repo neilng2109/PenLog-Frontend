@@ -276,7 +276,7 @@ export default function ContractorReportPage() {
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="p-4 space-y-4">
+      <form onSubmit={handleSubmit} className="p-4 pb-24 space-y-4 mb-20">
         {selectedPen.isNew && (
           <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 space-y-4">
             <h3 className="font-semibold text-gray-900">Pen Details</h3>
@@ -487,7 +487,7 @@ export default function ContractorReportPage() {
         <button
           type="submit"
           disabled={!action || submitMutation.isLoading}
-          className="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-lg sticky bottom-4 shadow-lg"
+          className="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-lg fixed bottom-4 left-0 right-0 mx-4 shadow-2xl z-50 max-w-[calc(100%-2rem)]"
         >
           {submitMutation.isLoading ? 'Submitting...' : 'Submit Report'}
         </button>
