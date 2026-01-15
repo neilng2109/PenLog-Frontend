@@ -141,20 +141,20 @@ export default function DashboardPage() {
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex gap-4">
-              <button
-                onClick={() => navigate('/')}
-                className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-              >
-                ← Projects
-              </button>
-              <button
-                onClick={() => navigate(`/project/${projectId}/contractor-links`)}
-                className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-              >
-                Contractor Access
-              </button>
-            </nav>
+			<nav className="hidden md:flex gap-3">
+			  <button
+				onClick={() => navigate('/')}
+				className="px-4 py-2 text-base font-semibold text-gray-700 hover:text-white hover:bg-gray-700 rounded-lg transition-all border-2 border-gray-300 hover:border-gray-700"
+			  >
+				← Projects
+			  </button>
+			  <button
+				onClick={() => navigate(`/project/${projectId}/contractor-links`)}
+				className="px-4 py-2 text-base font-semibold text-teal-700 hover:text-white hover:bg-teal-600 rounded-lg transition-all border-2 border-teal-500 hover:border-teal-600"
+			  >
+				Contractor Access
+			  </button>
+			</nav>
 
             {/* Desktop User Menu */}
             <div className="hidden md:flex items-center gap-4">
@@ -273,12 +273,12 @@ export default function DashboardPage() {
               {contractor.name}
             </span>
             <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-              <div className="w-20 md:w-32 bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-teal-500 h-2 rounded-full"
-                  style={{ width: `${completionRate}%` }}
-                />
-              </div>
+              <div className="w-20 md:w-32 bg-red-200 rounded-full h-2">
+				  <div
+					className="bg-teal-500 h-2 rounded-full"
+					style={{ width: `${completionRate}%` }}
+				  />
+				</div>
               <span className="text-sm text-gray-600 w-10 md:w-12 text-right">
                 {completionRate}%
               </span>
