@@ -260,8 +260,11 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
           <CompletionPieChart stats={stats} />
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6">
-            <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-4">By Contractor</h3>
-            <div className="space-y-3">
+		  <div className="mb-4">
+			<h3 className="text-base md:text-lg font-semibold text-gray-900">By Contractor</h3>
+			<p className="text-sm text-gray-500 mt-1">Penetration completion rates</p>
+		  </div>
+		  <div className="space-y-3">
               {contractors.slice(0, 5).map((contractor) => {
                 const completionRate = contractor.total > 0 
                   ? Math.round((contractor.verified / contractor.total) * 100)
