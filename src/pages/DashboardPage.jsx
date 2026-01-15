@@ -106,21 +106,23 @@ export default function DashboardPage() {
   }
 
   const handleExportCompletePackage = async () => {
-    try {
-      const response = await pdfAPI.exportCompletePackage(currentProjectId)
-      const blob = new Blob([response.data], { type: 'application/zip' })
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `PenLog_${project?.ship_name?.replace(/ /g, '_')}_${new Date().toISOString().split('T')[0]}_Complete.zip`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
-    } catch (error) {
-      console.error('Failed to export complete package:', error)
-      alert('Failed to generate complete package')
-    }
+	try {
+	  const response = await pdfAPI.exportCompletePackage(currentProjectId)
+	  const blob = new Blob([response.data], { 
+	    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+	  })
+	  const url = window.URL.createObjectURL(blob)
+  	  const link = document.createElement('a')
+	  link.href = url
+	  link.download = `PenLog_${project?.ship_name?.replace(/ /g, '_')}_${new Date().toISOString().split('T')[0]}_Complete.xlsx`
+	  document.body.appendChild(link)
+	  link.click()
+	  document.body.removeChild(link)
+	  window.URL.revokeObjectURL(url)
+	} catch (error) {
+	  console.error('Failed to export complete package:', error)
+	  alert('Failed to generate complete package')
+	}
   }
 
   const handleNavClick = (path) => {
