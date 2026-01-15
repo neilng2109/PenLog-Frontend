@@ -150,16 +150,10 @@ export default function DashboardPage() {
                 ← Projects
               </button>
               <button
-                onClick={() => navigate(`/project/${projectId}/approvals`)}
-                className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-              >
-                Approvals
-              </button>
-              <button
                 onClick={() => navigate(`/project/${projectId}/contractor-links`)}
                 className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
               >
-                Contractor Links
+                Contractor Access
               </button>
             </nav>
 
@@ -201,16 +195,10 @@ export default function DashboardPage() {
                   ← Projects
                 </button>
                 <button
-                  onClick={() => handleNavClick(`/project/${projectId}/approvals`)}
-                  className="text-left px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
-                >
-                  Approvals
-                </button>
-                <button
                   onClick={() => handleNavClick(`/project/${projectId}/contractor-links`)}
                   className="text-left px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
                 >
-                  Contractor Links
+                  Contractor Access
                 </button>
                 <div className="border-t border-gray-200 pt-3 mt-3">
                   <div className="px-4 py-2 text-sm text-gray-600">

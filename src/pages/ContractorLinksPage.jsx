@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import useAuthStore from '../stores/authStore'
-import { Link2, Copy, RefreshCw, Check } from 'lucide-react'
+import { Link2, Copy, RefreshCw, Check, Plus, X } from 'lucide-react'
 import PenLogLogo from '../components/PenLogLogo'
 import axios from 'axios'
 
@@ -15,6 +15,12 @@ export default function ContractorLinksPage() {
   
   const currentProjectId = projectId || 1
   const [copiedToken, setCopiedToken] = useState(null)
+  const [showNewLinkForm, setShowNewLinkForm] = useState(false)
+  const [newLinkForm, setNewLinkForm] = useState({
+    contractor_name: '',
+    contact_person: '',
+    contact_email: ''
+  })
 
   // Fetch contractor links
   const { data: links = [], isLoading } = useQuery({
@@ -22,10 +28,36 @@ export default function ContractorLinksPage() {
     queryFn: async () => {
       const token = localStorage.getItem('token')
       const response = await axios.get(
-        `http://localhost:5000/api/contractors/project/${currentProjectId}/access-links`,
+        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/contractors/project/${currentProjectId}/access-links`,
         { headers: { Authorization: `Bearer ${token}` } }
       )
       return response.data
+    },
+  })
+
+  // Generate new link mutation
+  const generateMutation = useMutation({
+    mutationFn: async (formData) => {
+      const token = localStorage.getItem('token')
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/contractors/generate-new-link`,
+        {
+          project_id: currentProjectId,
+          contractor_name: formData.contractor_name,
+          contact_person: formData.contact_person,
+          contact_email: formData.contact_email
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['contractor-links', currentProjectId])
+      setShowNewLinkForm(false)
+      setNewLinkForm({ contractor_name: '', contact_person: '', contact_email: '' })
+    },
+    onError: (error) => {
+      alert('Failed to generate link: ' + (error.response?.data?.error || error.message))
     },
   })
 
@@ -34,7 +66,7 @@ export default function ContractorLinksPage() {
     mutationFn: async (contractorId) => {
       const token = localStorage.getItem('token')
       const response = await axios.post(
-        `http://localhost:5000/api/contractors/project/${currentProjectId}/contractor/${contractorId}/regenerate-link`,
+        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/contractors/project/${currentProjectId}/contractor/${contractorId}/regenerate-link`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -59,6 +91,15 @@ export default function ContractorLinksPage() {
     if (confirm(`Regenerate magic link for ${contractorName}? The old link will stop working.`)) {
       regenerateMutation.mutate(contractorId)
     }
+  }
+
+  const handleGenerateNewLink = (e) => {
+    e.preventDefault()
+    if (!newLinkForm.contractor_name.trim()) {
+      alert('Company name is required')
+      return
+    }
+    generateMutation.mutate(newLinkForm)
   }
 
   return (
@@ -97,10 +138,99 @@ export default function ContractorLinksPage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Contractor Access Links</h1>
-          <p className="text-gray-600">Manage magic links for contractors to access their penetration reports</p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Contractor Access</h1>
+            <p className="text-gray-600">Generate magic links for contractors to access their penetration reports</p>
+          </div>
+          <button
+            onClick={() => setShowNewLinkForm(true)}
+            className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg flex items-center gap-2 transition-colors shadow-lg hover:shadow-xl"
+          >
+            <Plus className="w-5 h-5" />
+            Generate New Link
+          </button>
         </div>
+
+        {/* New Link Form Modal */}
+        {showNewLinkForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-gray-900">Generate New Magic Link</h2>
+                <button
+                  onClick={() => setShowNewLinkForm(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <form onSubmit={handleGenerateNewLink} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Company Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newLinkForm.contractor_name}
+                    onChange={(e) => setNewLinkForm({ ...newLinkForm, contractor_name: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    placeholder="e.g., ABC Electrical"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Contact Person
+                  </label>
+                  <input
+                    type="text"
+                    value={newLinkForm.contact_person}
+                    onChange={(e) => setNewLinkForm({ ...newLinkForm, contact_person: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    placeholder="e.g., John Smith"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={newLinkForm.contact_email}
+                    onChange={(e) => setNewLinkForm({ ...newLinkForm, contact_email: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    placeholder="e.g., john@abcelectrical.com"
+                  />
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+                  <strong>One-Click Access:</strong> The contractor will be created automatically when they first click the link. No approval needed!
+                </div>
+                
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowNewLinkForm(false)}
+                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={generateMutation.isPending}
+                    className="flex-1 px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    {generateMutation.isPending ? 'Generating...' : 'Generate Link'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         {isLoading ? (
           <div className="text-center py-12">
@@ -109,14 +239,8 @@ export default function ContractorLinksPage() {
         ) : links.length === 0 ? (
           <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
             <Link2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Approved Contractors</h3>
-            <p className="text-gray-500 mb-4">Contractors need to register and be approved before getting access links.</p>
-            <button
-              onClick={() => navigate(`/project/${projectId}/approvals`)}
-              className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg transition-colors"
-            >
-              Go to Approvals
-            </button>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No Contractor Links Yet</h3>
+            <p className="text-gray-500 mb-4">Click "Generate New Link" to create magic links for contractors.</p>
           </div>
         ) : (
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -199,14 +323,15 @@ export default function ContractorLinksPage() {
         <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
           <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
             <Link2 className="w-5 h-5" />
-            How to Use Magic Links
+            How to Use One-Link Workflow
           </h3>
           <ul className="space-y-2 text-sm text-blue-800">
-            <li>• Click the <strong>Copy</strong> button to copy a contractor's magic link</li>
-            <li>• Send the link to the contractor via email or messaging app</li>
-            <li>• The contractor can access their penetration report without logging in</li>
-            <li>• Click <strong>Regenerate</strong> if a link is compromised (old link will stop working)</li>
-            <li>• Links never expire unless regenerated or the contractor is removed</li>
+            <li>• Click <strong>Generate New Link</strong> and enter contractor details</li>
+            <li>• Copy the magic link and send it to the contractor</li>
+            <li>• Contractor clicks link and gets instant access (no approval needed!)</li>
+            <li>• Contractor is automatically created on first access</li>
+            <li>• Click <strong>Regenerate</strong> if a link is compromised</li>
+            <li>• Links expire at project embarkation date</li>
           </ul>
         </div>
       </div>
