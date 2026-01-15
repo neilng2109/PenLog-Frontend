@@ -35,12 +35,12 @@ export default function ContractorLinksPage() {
     },
   })
 
-  // Generate new link mutation
+  // Generate link mutation - UNIFIED ENDPOINT
   const generateMutation = useMutation({
     mutationFn: async (formData) => {
       const token = localStorage.getItem('token')
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/contractors/generate-new-link`,
+        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/contractors/generate-link`,
         {
           project_id: currentProjectId,
           contractor_name: formData.contractor_name,
@@ -63,12 +63,12 @@ export default function ContractorLinksPage() {
 
   // Regenerate link mutation
   const regenerateMutation = useMutation({
-    mutationFn: async (contractorId) => {
-      const token = localStorage.getItem('token')
+    mutationFn: async (token) => {
+      const authToken = localStorage.getItem('token')
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/contractors/project/${currentProjectId}/contractor/${contractorId}/regenerate-link`,
+        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/contractors/project/${currentProjectId}/token/${token}/regenerate`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${authToken}` } }
       )
       return response.data
     },
@@ -87,9 +87,9 @@ export default function ContractorLinksPage() {
     })
   }
 
-  const handleRegenerate = (contractorId, contractorName) => {
+  const handleRegenerate = (token, contractorName) => {
     if (confirm(`Regenerate magic link for ${contractorName}? The old link will stop working.`)) {
-      regenerateMutation.mutate(contractorId)
+      regenerateMutation.mutate(token)
     }
   }
 
@@ -141,14 +141,14 @@ export default function ContractorLinksPage() {
         <div className="mb-8 flex justify-between items-start">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Contractor Access</h1>
-            <p className="text-gray-600">Generate magic links for contractors to access their penetration reports</p>
+            <p className="text-gray-600">Generate magic links for contractors - one link, instant access!</p>
           </div>
           <button
             onClick={() => setShowNewLinkForm(true)}
             className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg flex items-center gap-2 transition-colors shadow-lg hover:shadow-xl"
           >
             <Plus className="w-5 h-5" />
-            Generate New Link
+            Generate Link
           </button>
         </div>
 
@@ -157,7 +157,7 @@ export default function ContractorLinksPage() {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-900">Generate New Magic Link</h2>
+                <h2 className="text-xl font-bold text-gray-900">Generate Magic Link</h2>
                 <button
                   onClick={() => setShowNewLinkForm(false)}
                   className="text-gray-400 hover:text-gray-600"
@@ -207,8 +207,8 @@ export default function ContractorLinksPage() {
                   />
                 </div>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
-                  <strong>One-Click Access:</strong> The contractor will be created automatically when they first click the link. No approval needed!
+                <div className="bg-teal-50 border border-teal-200 rounded-lg p-3 text-sm text-teal-800">
+                  <strong>✓ One Link Only:</strong> Contractor gets instant access when they click the link. No registration, no approval needed!
                 </div>
                 
                 <div className="flex gap-3 pt-2">
@@ -239,8 +239,8 @@ export default function ContractorLinksPage() {
         ) : links.length === 0 ? (
           <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
             <Link2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Contractor Links Yet</h3>
-            <p className="text-gray-500 mb-4">Click "Generate New Link" to create magic links for contractors.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No Links Yet</h3>
+            <p className="text-gray-500 mb-4">Click "Generate Link" to create a magic link for a contractor.</p>
           </div>
         ) : (
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -264,19 +264,17 @@ export default function ContractorLinksPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {links.map((link) => (
-                    <tr key={link.contractor_id} className="hover:bg-gray-50">
+                    <tr key={link.token} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="font-medium text-gray-900">{link.contractor_name}</div>
                       </td>
                       <td className="px-6 py-4">
-                        {link.magic_link ? (
+                        {link.magic_link && (
                           <div className="flex items-center gap-2">
                             <code className="text-sm bg-gray-100 px-3 py-1 rounded border border-gray-200 font-mono text-gray-700 max-w-md truncate">
                               {link.magic_link}
                             </code>
                           </div>
-                        ) : (
-                          <span className="text-sm text-gray-400 italic">No link generated</span>
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -290,11 +288,11 @@ export default function ContractorLinksPage() {
                         <div className="flex items-center justify-end gap-2">
                           {link.magic_link && (
                             <button
-                              onClick={() => copyToClipboard(link.magic_link, link.contractor_id)}
+                              onClick={() => copyToClipboard(link.magic_link, link.token)}
                               className="p-2 text-gray-600 hover:text-teal-600 hover:bg-teal-50 rounded transition-colors"
                               title="Copy link"
                             >
-                              {copiedToken === link.contractor_id ? (
+                              {copiedToken === link.token ? (
                                 <Check className="w-4 h-4 text-green-600" />
                               ) : (
                                 <Copy className="w-4 h-4" />
@@ -302,7 +300,7 @@ export default function ContractorLinksPage() {
                             </button>
                           )}
                           <button
-                            onClick={() => handleRegenerate(link.contractor_id, link.contractor_name)}
+                            onClick={() => handleRegenerate(link.token, link.contractor_name)}
                             disabled={regenerateMutation.isPending}
                             className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors disabled:opacity-50"
                             title="Regenerate link"
@@ -320,16 +318,16 @@ export default function ContractorLinksPage() {
         )}
 
         {/* Instructions */}
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+        <div className="mt-8 bg-teal-50 border border-teal-200 rounded-lg p-6">
+          <h3 className="font-semibold text-teal-900 mb-3 flex items-center gap-2">
             <Link2 className="w-5 h-5" />
-            How to Use One-Link Workflow
+            One-Link Workflow
           </h3>
-          <ul className="space-y-2 text-sm text-blue-800">
-            <li>• Click <strong>Generate New Link</strong> and enter contractor details</li>
+          <ul className="space-y-2 text-sm text-teal-800">
+            <li>• Click <strong>Generate Link</strong> and enter contractor details</li>
             <li>• Copy the magic link and send it to the contractor</li>
-            <li>• Contractor clicks link and gets instant access (no approval needed!)</li>
-            <li>• Contractor is automatically created on first access</li>
+            <li>• Contractor clicks link → instant access (no approval needed!)</li>
+            <li>• Contractor is automatically created on first click</li>
             <li>• Click <strong>Regenerate</strong> if a link is compromised</li>
             <li>• Links expire at project embarkation date</li>
           </ul>
