@@ -14,7 +14,6 @@ import PenetrationsTable from '../components/PenetrationsTable'
 import CompletionPieChart from '../components/CompletionPieChart'
 import PenDetailModal from '../components/PenDetailModal'
 import AddPenModal from '../components/AddPenModal'
-import ProjectInviteLink from '../components/ProjectInviteLink'
 
 export default function DashboardPage() {
   const { projectId } = useParams()
@@ -256,9 +255,6 @@ export default function DashboardPage() {
           />
         </div>
 		
-		<div className="mb-6">
-          <ProjectInviteLink projectId={projectId} />
-        </div>
 
         {/* Charts Row - stack on mobile, side by side on desktop */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
