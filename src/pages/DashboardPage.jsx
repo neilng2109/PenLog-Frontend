@@ -273,7 +273,7 @@ export default function DashboardPage() {
               {contractor.name}
             </span>
             <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-              <div className="w-20 md:w-32 bg-red-200 rounded-full h-2">
+              <div className="w-20 md:w-32 bg-orange-300 rounded-full h-2">
 				  <div
 					className="bg-teal-500 h-2 rounded-full"
 					style={{ width: `${completionRate}%` }}
