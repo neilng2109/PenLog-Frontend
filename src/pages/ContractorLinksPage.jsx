@@ -28,7 +28,7 @@ export default function ContractorLinksPage() {
     queryFn: async () => {
       const token = localStorage.getItem('token')
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/contractors/project/${currentProjectId}/access-links`,
+        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/contractors/project/${currentProjectId}/access-links`,
         { headers: { Authorization: `Bearer ${token}` } }
       )
       return response.data
@@ -40,7 +40,7 @@ export default function ContractorLinksPage() {
     mutationFn: async (formData) => {
       const token = localStorage.getItem('token')
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/contractors/generate-link`,
+        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/contractors/generate-link`,
         {
           project_id: currentProjectId,
           contractor_name: formData.contractor_name,
@@ -66,7 +66,7 @@ export default function ContractorLinksPage() {
     mutationFn: async (token) => {
       const authToken = localStorage.getItem('token')
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/contractors/project/${currentProjectId}/token/${token}/regenerate`,
+        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/contractors/project/${currentProjectId}/token/${token}/regenerate`,
         {},
         { headers: { Authorization: `Bearer ${authToken}` } }
       )
