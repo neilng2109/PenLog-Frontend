@@ -151,7 +151,7 @@ export default function DashboardPage() {
 			  
 			  {user?.role === 'admin' && (  // ADD THIS CONDITION
 				<button
-				  onClick={() => navigate('/access-requests')}
+				  onClick={() => navigate('/admin/access-requests')}
 				  className="px-4 py-2 text-base font-semibold text-orange-700 hover:text-white hover:bg-orange-600 rounded-lg transition-all border-2 border-orange-500 hover:border-orange-600"
 				>
 				  Access Requests
@@ -207,7 +207,7 @@ export default function DashboardPage() {
 				
 				{user?.role === 'admin' && (  // ADD THIS CONDITION
 				  <button
-					onClick={() => handleNavClick('/access-requests')}
+					onClick={() => navigate('/admin/access-requests')}
 					className="text-left px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
 				  >
 					Access Requests
