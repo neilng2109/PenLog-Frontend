@@ -62,17 +62,21 @@ const pendingCount = pendingRequests.length
 	  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
 		<PenLogLogo size="lg" />
 		<div className="flex items-center gap-4">
-		  <button
-			onClick={() => navigate('/admin/access-requests')}
-			className="text-sm font-medium text-gray-700 hover:text-gray-900 flex items-center gap-2 transition-colors"
-		  >
-			Access Requests
-			{pendingCount > 0 && (
-			  <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
-				{pendingCount}
-			  </span>
-			)}
-		  </button>
+		  {isAdmin && (  // ADD THIS CONDITION
+			<button
+			  onClick={() => navigate('/admin/access-requests')}
+			  className="text-sm font-medium text-gray-700 hover:text-gray-900 flex items-center gap-2 transition-colors"
+			>
+			  Access Requests
+			  {pendingCount > 0 && (
+				<span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center">
+				  {pendingCount}
+				</span>
+			  )}
+			</button>
+		  )}  {/* END CONDITION */}
+		  
+		  
 		  <span className="text-sm text-gray-600">{user?.username}</span>
 		  <button
 			onClick={logout}
