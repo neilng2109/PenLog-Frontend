@@ -519,3 +519,14 @@ export default function ContractorReportPage() {
     Tap to take photo or choose from gallery
   </p>
 </div>
+ <button
+          type="submit"
+          disabled={!action || submitMutation.isLoading}
+          className="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-lg fixed bottom-4 left-0 right-0 mx-4 shadow-2xl z-50 max-w-[calc(100%-2rem)]"
+        >
+          {submitMutation.isLoading ? 'Submitting...' : 'Submit Report'}
+        </button>
+      </form>
+    </div>
+  )
+}
