@@ -27,23 +27,24 @@ export default function ContractorReportPage() {
 
  const submitMutation = useMutation({
   mutationFn: async ({ penId, action, notes }) => {
-    const statusResponse = await reportAPI.submit(token, {
-      pen_id: penId,
-      action,
-      notes
-    })
-    
+    // UPLOAD PHOTOS FIRST
     if (photos.length > 0) {
       const uploadPromises = photos.map(photo => {
         const formData = new FormData()
         formData.append('file', photo)
         formData.append('penetration_id', penId)
         formData.append('photo_type', action === 'open' ? 'opening' : 'closing')
-        // Use reportAPI.uploadPhoto instead of photosAPI.upload
         return reportAPI.uploadPhoto(token, formData)
       })
       await Promise.all(uploadPromises)
     }
+    
+    // THEN SUBMIT STATUS
+    const statusResponse = await reportAPI.submit(token, {
+      pen_id: penId,
+      action,
+      notes
+    })
     
     return statusResponse
   },
