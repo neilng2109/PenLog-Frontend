@@ -1,20 +1,28 @@
 import { useState, useEffect } from 'react'
-import { X, Clock } from 'lucide-react'
+import { X, Clock, Edit } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import StatusBadge from './StatusBadge'
 import EditStatusModal from './EditStatusModal'
+import EditPenModal from './EditPenModal'
 import PhotoGallery from './PhotoGallery'
 import { formatDate, formatRelativeDate } from '../utils/helpers'
-import { penetrationsAPI } from '../services/api'
+import { penetrationsAPI, contractorsAPI } from '../services/api'
 
 export default function PenDetailModal({ pen, onClose }) {
   const [showEditStatus, setShowEditStatus] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
   
   // Fetch activity history
   const { data: activities = [] } = useQuery({
     queryKey: ['pen-activities', pen.id],
     queryFn: () => penetrationsAPI.getActivities(pen.id).then(res => res.data),
     enabled: !!pen.id
+  })
+
+  // Fetch contractors for edit modal
+  const { data: allContractors = [] } = useQuery({
+    queryKey: ['contractors'],
+    queryFn: () => contractorsAPI.getAll().then(res => res.data),
   })
   
   if (!pen) return null
@@ -26,12 +34,21 @@ export default function PenDetailModal({ pen, onClose }) {
           {/* Header */}
           <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
             <h2 className="text-2xl font-bold text-gray-900">Pen {pen.pen_id}</h2>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowEditModal(true)}
+                className="p-2 text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+                title="Edit penetration"
+              >
+                <Edit className="w-5 h-5" />
+              </button>
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Content */}
@@ -205,6 +222,15 @@ export default function PenDetailModal({ pen, onClose }) {
           pen={pen}
           onClose={() => setShowEditStatus(false)}
           onSuccess={onClose}
+        />
+      )}
+
+      {/* Edit Pen Modal */}
+      {showEditModal && (
+        <EditPenModal
+          pen={pen}
+          contractors={allContractors}
+          onClose={() => setShowEditModal(false)}
         />
       )}
     </>

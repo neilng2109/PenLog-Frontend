@@ -65,6 +65,7 @@ export const penetrationsAPI = {
   getById: (id) => api.get(`/penetrations/${id}`),
   create: (penData) => api.post('/penetrations', penData),
   update: (id, penData) => api.put(`/penetrations/${id}`, penData),
+  delete: (id) => api.delete(`/penetrations/${id}`),
   updateStatus: (id, status, notes) => 
     api.post(`/penetrations/${id}/status`, { status, notes }),
   getActivities: (id) => api.get(`/penetrations/${id}/activities`),
