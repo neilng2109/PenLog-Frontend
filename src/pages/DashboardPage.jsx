@@ -265,7 +265,7 @@ export default function DashboardPage() {
 			<p className="text-sm text-gray-500 mt-1">Penetration completion rates</p>
 		  </div>
 		  <div className="space-y-3">
-              {contractors.slice(0, 5).map((contractor) => {
+               {contractors.map((contractor) => {
                 const completionRate = contractor.total > 0 
                   ? Math.round((contractor.verified / contractor.total) * 100)
                   : 0
