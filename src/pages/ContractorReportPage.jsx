@@ -24,6 +24,14 @@ export default function ContractorReportPage() {
     retry: 1,
     refetchInterval: 30000
   })
+  
+ // Fetch existing photos when pen is selected
+  const { data: existingPhotos } = useQuery({
+   queryKey: ['pen-photos', selectedPen?.id],
+   queryFn: () => photosAPI.getByPenetration(selectedPen.id).then(res => res.data),
+   enabled: !!selectedPen && !selectedPen.isNew,
+   retry: 1
+  }) 
 
  const submitMutation = useMutation({
   mutationFn: async ({ penId, action, notes }) => {
@@ -437,62 +445,77 @@ export default function ContractorReportPage() {
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            PHOTOS {photos.length > 0 && `(${photos.length})`}
-          </label>
-          
-          {photoPreviewUrls.length > 0 && (
-            <div className="grid grid-cols-3 gap-2 mb-3">
-              {photoPreviewUrls.map((url, index) => (
-                <div key={index} className="relative aspect-square">
-                  <img
-                    src={url}
-                    alt={`Photo ${index + 1}`}
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removePhoto(index)}
-                    className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 shadow-lg"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
+       <div>
+  <label className="block text-sm font-semibold text-gray-700 mb-2">
+    PHOTOS 
+    {existingPhotos && existingPhotos.length > 0 && ` (${existingPhotos.length} existing)`}
+    {photos.length > 0 && ` + ${photos.length} new`}
+  </label>
+  
+  {/* Show existing photos */}
+  {existingPhotos && existingPhotos.length > 0 && (
+    <div className="mb-3">
+      <div className="text-xs text-gray-500 mb-2">Existing photos:</div>
+      <div className="grid grid-cols-3 gap-2">
+        {existingPhotos.map((photo) => (
+          <div key={photo.id} className="relative aspect-square">
+            <img
+              src={photo.filepath}
+              alt={`Existing ${photo.photo_type}`}
+              className="w-full h-full object-cover rounded-lg border-2 border-blue-200"
+            />
+            <div className="absolute bottom-1 left-1 bg-blue-600 text-white text-xs px-2 py-1 rounded">
+              ✓ Uploaded
             </div>
-          )}
-          
-          <label
-            htmlFor="photo-upload"
-            className="flex items-center justify-center gap-2 w-full p-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 active:scale-98 transition-all"
-          >
-            <Camera className="w-6 h-6 text-gray-400" />
-            <span className="text-gray-600 font-medium">
-              {photos.length === 0 ? 'Add Photos' : 'Add More Photos'}
-            </span>
-          </label>
-          <input
-            id="photo-upload"
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handlePhotoChange}
-            className="hidden"
-          />
-          <p className="mt-1 text-xs text-gray-500 text-center">
-            Tap to take photo or choose from gallery
-          </p>
-        </div>
-
-        <button
-          type="submit"
-          disabled={!action || submitMutation.isLoading}
-          className="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-lg fixed bottom-4 left-0 right-0 mx-4 shadow-2xl z-50 max-w-[calc(100%-2rem)]"
-        >
-          {submitMutation.isLoading ? 'Submitting...' : 'Submit Report'}
-        </button>
-      </form>
+          </div>
+        ))}
+      </div>
     </div>
-  )
-}
+  )}
+  
+  {/* Show new photos being added */}
+  {photoPreviewUrls.length > 0 && (
+    <div className="mb-3">
+      <div className="text-xs text-gray-500 mb-2">New photos to upload:</div>
+      <div className="grid grid-cols-3 gap-2">
+        {photoPreviewUrls.map((url, index) => (
+          <div key={index} className="relative aspect-square">
+            <img
+              src={url}
+              alt={`Photo ${index + 1}`}
+              className="w-full h-full object-cover rounded-lg"
+            />
+            <button
+              type="button"
+              onClick={() => removePhoto(index)}
+              className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 shadow-lg"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+  
+  <label
+    htmlFor="photo-upload"
+    className="flex items-center justify-center gap-2 w-full p-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 active:scale-98 transition-all"
+  >
+    <Camera className="w-6 h-6 text-gray-400" />
+    <span className="text-gray-600 font-medium">
+      {photos.length === 0 ? 'Add Photos' : 'Add More Photos'}
+    </span>
+  </label>
+  <input
+    id="photo-upload"
+    type="file"
+    accept="image/*"
+    multiple
+    onChange={handlePhotoChange}
+    className="hidden"
+  />
+  <p className="mt-1 text-xs text-gray-500 text-center">
+    Tap to take photo or choose from gallery
+  </p>
+</div>
