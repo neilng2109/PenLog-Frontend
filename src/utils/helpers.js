@@ -31,10 +31,21 @@ export function getStatusText(status) {
   return text[status] || status;
 }
 
-// Format date
+// Format date with local timezone
 export function formatDate(dateString) {
   if (!dateString) return '—';
-  return format(new Date(dateString), 'MM/dd HH:mm');
+  
+  const date = new Date(dateString);
+  
+  // Format: "17 Jan 2026, 2:30 PM"
+  const formattedDate = format(date, 'dd MMM yyyy, h:mm a');
+  
+  // Get timezone abbreviation (e.g., "CET", "GMT", "EST")
+  const timezone = new Intl.DateTimeFormat('en', { 
+    timeZoneName: 'short' 
+  }).formatToParts(date).find(part => part.type === 'timeZoneName')?.value || '';
+  
+  return `${formattedDate} ${timezone}`;
 }
 
 // Format date relative (e.g., "2 days ago")
