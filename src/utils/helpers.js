@@ -35,7 +35,9 @@ export function getStatusText(status) {
 export function formatDate(dateString) {
   if (!dateString) return '—';
   
-  const date = new Date(dateString);
+  // Ensure the date string is treated as UTC by adding 'Z' if missing
+  const utcDateString = dateString.endsWith('Z') ? dateString : `${dateString}Z`;
+  const date = new Date(utcDateString);
   
   // Format: "17 Jan 2026, 2:30 PM"
   const formattedDate = format(date, 'dd MMM yyyy, h:mm a');
