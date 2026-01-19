@@ -78,11 +78,20 @@ export default function DashboardPage() {
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [demoMode, penetrations])
 
-  // Handle demo updates
+  // Handle demo updates (both updates and new pens)
   const handleDemoUpdate = (updatedPen) => {
-    setDemoPenetrations(prev =>
-      prev.map(p => p.id === updatedPen.id ? updatedPen : p)
-    )
+    setDemoPenetrations(prev => {
+      // Check if pen exists
+      const existingIndex = prev.findIndex(p => p.id === updatedPen.id);
+      
+      if (existingIndex >= 0) {
+        // Update existing pen
+        return prev.map(p => p.id === updatedPen.id ? updatedPen : p);
+      } else {
+        // Add new pen
+        return [...prev, updatedPen];
+      }
+    });
   }
 
   // Use demo data when demo mode is active

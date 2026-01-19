@@ -21,43 +21,104 @@ export default function DemoMode({ penetrations, onUpdate, isActive, onToggle })
 
   // Get random contractor name for realism
   const getRandomContractor = () => {
-    const contractors = ['Maersk', 'Wartsila', 'ABB', 'Navicross', 'Roxtec'];
+    const contractors = ['Maersk', 'Wartsila', 'ABB', 'Navicross', 'Roxtec', 'GEA', 'Kongsberg'];
     return contractors[Math.floor(Math.random() * contractors.length)];
   };
 
-  // Simulate a pen update
-  const simulateUpdate = () => {
-    // Filter pens that can still progress
-    const eligiblePens = penetrations.filter(p => p.status !== 'verified');
-    
-    if (eligiblePens.length === 0) {
-      console.log('All pens verified - demo complete!');
-      setIsPaused(true);
-      return;
-    }
+  // Get random deck
+  const getRandomDeck = () => {
+    const decks = ['Deck 3', 'Deck 4', 'Deck 5', 'Deck 6', 'Deck 7', 'Deck 8', 'Deck 9'];
+    return decks[Math.floor(Math.random() * decks.length)];
+  };
 
-    // Pick random pen
-    const randomPen = eligiblePens[Math.floor(Math.random() * eligiblePens.length)];
-    const newStatus = getNextStatus(randomPen.status);
-    
-    // Create activity log entry
-    const timestamp = new Date().toLocaleTimeString();
-    const activity = {
-      time: timestamp,
-      penId: randomPen.pen_id,
-      action: newStatus,
-      contractor: randomPen.contractor_name || getRandomContractor()
+  // Get random fire zone
+  const getRandomFireZone = () => {
+    const zones = ['FZ-1', 'FZ-2', 'FZ-3', 'FZ-4', 'FZ-5'];
+    return zones[Math.floor(Math.random() * zones.length)];
+  };
+
+  // Get random pen type
+  const getRandomPenType = () => {
+    const types = ['MCT', 'Roxtec', 'GK', 'Navicross', 'Fire Seal'];
+    return types[Math.floor(Math.random() * types.length)];
+  };
+
+  // Create a new pen
+  const createNewPen = () => {
+    const penNumber = penetrations.length + 1;
+    const newPen = {
+      id: Date.now(), // Use timestamp as temporary ID
+      pen_id: `${penNumber.toString().padStart(3, '0')}`,
+      deck: getRandomDeck(),
+      fire_zone: getRandomFireZone(),
+      frame: Math.floor(Math.random() * 50) + 20, // Random frame 20-70
+      location: `${getRandomDeck()} - ${getRandomFireZone()}`,
+      pen_type: getRandomPenType(),
+      contractor_name: getRandomContractor(),
+      status: 'not_started',
+      priority: 'routine',
+      opened_at: null,
+      completed_at: null,
+      notes: '',
+      photo_count: 0
     };
+    return newPen;
+  };
+
+  // Simulate a pen update OR create new pen
+  const simulateUpdate = () => {
+    const timestamp = new Date().toLocaleTimeString();
     
-    setActivityLog(prev => [activity, ...prev].slice(0, 10)); // Keep last 10
+    // 40% chance to create a new pen if we have fewer than 30 pens
+    const shouldCreateNew = penetrations.length < 30 && Math.random() < 0.4;
     
-    // Call the update function passed from parent
-    onUpdate({
-      ...randomPen,
-      status: newStatus,
-      opened_at: newStatus === 'open' ? new Date().toISOString() : randomPen.opened_at,
-      completed_at: newStatus === 'closed' ? new Date().toISOString() : randomPen.completed_at
-    });
+    if (shouldCreateNew) {
+      const newPen = createNewPen();
+      
+      // Create activity log entry
+      const activity = {
+        time: timestamp,
+        penId: newPen.pen_id,
+        action: 'created',
+        contractor: newPen.contractor_name
+      };
+      
+      setActivityLog(prev => [activity, ...prev].slice(0, 10));
+      
+      // Add the new pen
+      onUpdate(newPen);
+      
+    } else {
+      // Update existing pen
+      const eligiblePens = penetrations.filter(p => p.status !== 'verified');
+      
+      if (eligiblePens.length === 0) {
+        console.log('All pens verified - demo complete!');
+        setIsPaused(true);
+        return;
+      }
+
+      const randomPen = eligiblePens[Math.floor(Math.random() * eligiblePens.length)];
+      const newStatus = getNextStatus(randomPen.status);
+      
+      // Create activity log entry
+      const activity = {
+        time: timestamp,
+        penId: randomPen.pen_id,
+        action: newStatus,
+        contractor: randomPen.contractor_name || getRandomContractor()
+      };
+      
+      setActivityLog(prev => [activity, ...prev].slice(0, 10));
+      
+      // Update the pen
+      onUpdate({
+        ...randomPen,
+        status: newStatus,
+        opened_at: newStatus === 'open' ? new Date().toISOString() : randomPen.opened_at,
+        completed_at: newStatus === 'closed' ? new Date().toISOString() : randomPen.completed_at
+      });
+    }
     
     setUpdatesRemaining(prev => prev - 1);
   };
@@ -185,6 +246,7 @@ export default function DemoMode({ penetrations, onUpdate, isActive, onToggle })
 // Helper function for status colors
 function getStatusColor(status) {
   const colors = {
+    'created': 'text-purple-400',
     'open': 'text-red-400',
     'closed': 'text-blue-400',
     'verified': 'text-green-400',
