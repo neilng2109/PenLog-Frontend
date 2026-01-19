@@ -78,6 +78,15 @@ export default function DashboardPage() {
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [demoMode, penetrations])
 
+  // Force re-render when demo penetrations change (for live stats updates)
+  useEffect(() => {
+    if (demoMode) {
+      // This will trigger stats recalculation
+      const timer = setTimeout(() => {}, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [demoPenetrations, demoMode])
+
   // Handle demo updates (both updates and new pens)
   const handleDemoUpdate = (updatedPen) => {
     setDemoPenetrations(prev => {
@@ -97,16 +106,66 @@ export default function DashboardPage() {
   // Use demo data when demo mode is active
   const displayPenetrations = demoMode ? demoPenetrations : penetrations
 
-  const stats = dashboardData?.overall || {
-    total: 0,
-    not_started: 0,
-    open: 0,
-    closed: 0,
-    verified: 0,
-    completion_rate: 0,
-  }
+  // Calculate stats from demo data or use API data
+  const calculateStats = (pens) => {
+    const total = pens.length;
+    const not_started = pens.filter(p => p.status === 'not_started').length;
+    const open = pens.filter(p => p.status === 'open').length;
+    const closed = pens.filter(p => p.status === 'closed').length;
+    const verified = pens.filter(p => p.status === 'verified').length;
+    const pens_without_photos = pens.filter(p => (p.photo_count || 0) < 2).length;
+    const completion_rate = total > 0 ? Math.round((verified / total) * 100) : 0;
+    
+    return {
+      total,
+      not_started,
+      open,
+      closed,
+      verified,
+      pens_without_photos,
+      completion_rate
+    };
+  };
 
-  const contractors = dashboardData?.by_contractor || []
+  // Calculate contractor stats from demo data
+  const calculateContractorStats = (pens) => {
+    const contractorMap = {};
+    
+    pens.forEach(pen => {
+      const name = pen.contractor_name || 'Unknown';
+      if (!contractorMap[name]) {
+        contractorMap[name] = {
+          id: name,
+          name: name,
+          total: 0,
+          not_started: 0,
+          open: 0,
+          closed: 0,
+          verified: 0
+        };
+      }
+      
+      contractorMap[name].total++;
+      contractorMap[name][pen.status]++;
+    });
+    
+    return Object.values(contractorMap);
+  };
+
+  const stats = demoMode 
+    ? calculateStats(demoPenetrations)
+    : (dashboardData?.overall || {
+        total: 0,
+        not_started: 0,
+        open: 0,
+        closed: 0,
+        verified: 0,
+        completion_rate: 0,
+      });
+
+  const contractors = demoMode
+    ? calculateContractorStats(demoPenetrations)
+    : (dashboardData?.by_contractor || []);
 
   const handleExportPDF = async () => {
     try {
