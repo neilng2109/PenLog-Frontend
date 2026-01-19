@@ -21,7 +21,7 @@ export default function DemoMode({ penetrations, onUpdate, isActive, onToggle })
 
   // Get random contractor name for realism
   const getRandomContractor = () => {
-    const contractors = ['Maersk', 'Wartsila', 'ABB', 'Navicross', 'Roxtec', 'GEA', 'Kongsberg'];
+    const contractors = ['Mivan', 'Gecom', 'MMX', 'Century', 'Technavi', 'De Wave', 'Ships Staff'];
     return contractors[Math.floor(Math.random() * contractors.length)];
   };
 
