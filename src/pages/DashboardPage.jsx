@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import useAuthStore from '../stores/authStore'
@@ -14,6 +14,7 @@ import PenetrationsTable from '../components/PenetrationsTable'
 import CompletionPieChart from '../components/CompletionPieChart'
 import PenDetailModal from '../components/PenDetailModal'
 import AddPenModal from '../components/AddPenModal'
+import DemoMode from '../components/DemoMode'
 
 export default function DashboardPage() {
   const { projectId } = useParams()
@@ -25,6 +26,10 @@ export default function DashboardPage() {
   const [selectedPen, setSelectedPen] = useState(null)
   const [showAddPen, setShowAddPen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  
+  // Demo mode state
+  const [demoMode, setDemoMode] = useState(false)
+  const [demoPenetrations, setDemoPenetrations] = useState([])
 
   // Use project ID 1 if not specified (for now)
   const currentProjectId = projectId || 1
@@ -56,6 +61,32 @@ export default function DashboardPage() {
     queryKey: ['contractors'],
     queryFn: () => contractorsAPI.getAll().then(res => res.data),
   })
+
+  // Keyboard shortcut for demo mode (Shift+D)
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (e.shiftKey && e.key === 'D') {
+        setDemoMode(prev => !prev)
+        if (!demoMode) {
+          // Initialize demo with current penetrations
+          setDemoPenetrations(penetrations)
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [demoMode, penetrations])
+
+  // Handle demo updates
+  const handleDemoUpdate = (updatedPen) => {
+    setDemoPenetrations(prev =>
+      prev.map(p => p.id === updatedPen.id ? updatedPen : p)
+    )
+  }
+
+  // Use demo data when demo mode is active
+  const displayPenetrations = demoMode ? demoPenetrations : penetrations
 
   const stats = dashboardData?.overall || {
     total: 0,
@@ -149,18 +180,17 @@ export default function DashboardPage() {
 				← Projects
 			  </button>
 			  
-			  {user?.role === 'admin' && (  // ADD THIS CONDITION
+			  {user?.role === 'admin' && (
 				<button
 				  onClick={() => navigate('/admin/access-requests')}
 				  className="px-4 py-2 text-base font-semibold text-orange-700 hover:text-white hover:bg-orange-600 rounded-lg transition-all border-2 border-orange-500 hover:border-orange-600"
 				>
 				  Access Requests
 				</button>
-			  )}  {/* END CONDITION */}
+			  )}
 			  
-			  			  	  
 			  <button
-				onClick={() => navigate(`/project/${projectId}/contractor-links`)}  // ADD backticks
+				onClick={() => navigate(`/project/${projectId}/contractor-links`)}
 				className="px-4 py-2 text-base font-semibold text-teal-700 hover:text-white hover:bg-teal-600 rounded-lg transition-all border-2 border-teal-500 hover:border-teal-600"
 			  >
 				Contractor Access
@@ -205,19 +235,17 @@ export default function DashboardPage() {
                   ← Projects
                 </button>
 				
-				{user?.role === 'admin' && (  // ADD THIS CONDITION
+				{user?.role === 'admin' && (
 				  <button
 					onClick={() => navigate('/admin/access-requests')}
 					className="text-left px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
 				  >
 					Access Requests
 				  </button>
-				)}  {/* END CONDITION */}
-				
-									
+				)}
 				
                 <button
-                  onClick={() => handleNavClick(`/project/${projectId}/contractor-links`)}  // ADD backticks
+                  onClick={() => handleNavClick(`/project/${projectId}/contractor-links`)}
                   className="text-left px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
                 >
                   Contractor Access
@@ -364,7 +392,7 @@ export default function DashboardPage() {
         {/* Penetrations Table */}
         <div>
           <PenetrationsTable
-            data={penetrations}
+            data={displayPenetrations}
             onRowClick={setSelectedPen}
           />
         </div>
@@ -386,6 +414,14 @@ export default function DashboardPage() {
           onClose={() => setShowAddPen(false)}
         />
       )}
+
+      {/* Demo Mode */}
+      <DemoMode
+        penetrations={displayPenetrations}
+        onUpdate={handleDemoUpdate}
+        isActive={demoMode}
+        onToggle={() => setDemoMode(!demoMode)}
+      />
     </div>
   )
 }
