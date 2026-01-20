@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import useAuthStore from '../stores/authStore'
 import { projectsAPI, penetrationsAPI, dashboardAPI, contractorsAPI, pdfAPI } from '../services/api'
-import { Plus, FileText, Menu, X } from 'lucide-react'
+import { Plus, FileText, Menu, X, RefreshCw } from 'lucide-react'
 
 // Components
 import PenLogLogo from '../components/PenLogLogo'
@@ -21,6 +21,7 @@ export default function DashboardPage() {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
+  const queryClient = useQueryClient()
 
   const [activeContractor, setActiveContractor] = useState(null)
   const [selectedPen, setSelectedPen] = useState(null)
@@ -30,6 +31,10 @@ export default function DashboardPage() {
   // Demo mode state
   const [demoMode, setDemoMode] = useState(false)
   const [demoPenetrations, setDemoPenetrations] = useState([])
+  
+  // Auto-refresh state
+  const [lastUpdated, setLastUpdated] = useState(new Date())
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   // Use project ID 1 if not specified (for now)
   const currentProjectId = projectId || 1
@@ -86,6 +91,49 @@ export default function DashboardPage() {
       return () => clearTimeout(timer);
     }
   }, [demoPenetrations, demoMode])
+
+  // Auto-refresh every 30 seconds (when not in demo mode)
+  useEffect(() => {
+    if (demoMode) return; // Don't auto-refresh during demo
+    
+    const interval = setInterval(() => {
+      queryClient.invalidateQueries(['penetrations', currentProjectId]);
+      queryClient.invalidateQueries(['dashboard', currentProjectId]);
+      setLastUpdated(new Date());
+    }, 30000); // 30 seconds
+    
+    return () => clearInterval(interval);
+  }, [demoMode, currentProjectId, queryClient]);
+
+  // Manual refresh handler
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    await Promise.all([
+      queryClient.invalidateQueries(['penetrations', currentProjectId]),
+      queryClient.invalidateQueries(['dashboard', currentProjectId]),
+      queryClient.invalidateQueries(['project', currentProjectId])
+    ]);
+    setLastUpdated(new Date());
+    setTimeout(() => setIsRefreshing(false), 500); // Brief animation
+  };
+
+  // Format last updated time
+  const getLastUpdatedText = () => {
+    const seconds = Math.floor((new Date() - lastUpdated) / 1000);
+    if (seconds < 10) return 'Just now';
+    if (seconds < 60) return `${seconds}s ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes === 1) return '1 min ago';
+    return `${minutes} mins ago`;
+  };
+
+  // Update last updated text every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      // Force re-render to update "X seconds ago" text
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [lastUpdated]);
 
   // Handle demo updates (both updates and new pens)
   const handleDemoUpdate = (updatedPen) => {
@@ -421,39 +469,64 @@ export default function DashboardPage() {
               onSelectContractor={setActiveContractor}
             />
           </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={handleExportCompletePackage}
-              className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg hover:shadow-xl"
-            >
-              <FileText className="w-4 md:w-5 h-4 md:h-5" />
-              <span className="hidden sm:inline">Complete Package</span>
-              <span className="sm:hidden">Package</span>
-            </button>
-            <button
-              onClick={handleExportExcel}
-              className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg hover:shadow-xl"
-            >
-              <FileText className="w-4 md:w-5 h-4 md:h-5" />
-              <span className="hidden sm:inline">Export Excel</span>
-              <span className="sm:hidden">Excel</span>
-            </button>
-            <button
-              onClick={handleExportPDF}
-              className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-navy-700 hover:bg-navy-800 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg hover:shadow-xl"
-            >
-              <FileText className="w-4 md:w-5 h-4 md:h-5" />
-              <span className="hidden sm:inline">Export PDF</span>
-              <span className="sm:hidden">PDF</span>
-            </button>
-            <button
-              onClick={() => setShowAddPen(true)}
-              className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg hover:shadow-xl"
-            >
-              <Plus className="w-4 md:w-5 h-4 md:h-5" />
-              <span className="hidden sm:inline">Add New Pen</span>
-              <span className="sm:hidden">Add Pen</span>
-            </button>
+          
+          {/* Auto-refresh indicator and buttons */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            {/* Last updated indicator */}
+            {!demoMode && (
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span>Updated {getLastUpdatedText()}</span>
+              </div>
+            )}
+            
+            {/* Action buttons */}
+            <div className="flex flex-wrap gap-2">
+              {/* Manual Refresh Button */}
+              {!demoMode && (
+                <button
+                  onClick={handleManualRefresh}
+                  disabled={isRefreshing}
+                  className="px-3 md:px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg hover:shadow-xl"
+                >
+                  <RefreshCw className={`w-4 md:w-5 h-4 md:h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  <span className="hidden sm:inline">Refresh</span>
+                </button>
+              )}
+              
+              <button
+                onClick={handleExportCompletePackage}
+                className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg hover:shadow-xl"
+              >
+                <FileText className="w-4 md:w-5 h-4 md:h-5" />
+                <span className="hidden sm:inline">Complete Package</span>
+                <span className="sm:hidden">Package</span>
+              </button>
+              <button
+                onClick={handleExportExcel}
+                className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg hover:shadow-xl"
+              >
+                <FileText className="w-4 md:w-5 h-4 md:h-5" />
+                <span className="hidden sm:inline">Export Excel</span>
+                <span className="sm:hidden">Excel</span>
+              </button>
+              <button
+                onClick={handleExportPDF}
+                className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-navy-700 hover:bg-navy-800 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg hover:shadow-xl"
+              >
+                <FileText className="w-4 md:w-5 h-4 md:h-5" />
+                <span className="hidden sm:inline">Export PDF</span>
+                <span className="sm:hidden">PDF</span>
+              </button>
+              <button
+                onClick={() => setShowAddPen(true)}
+                className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg hover:shadow-xl"
+              >
+                <Plus className="w-4 md:w-5 h-4 md:h-5" />
+                <span className="hidden sm:inline">Add New Pen</span>
+                <span className="sm:hidden">Add Pen</span>
+              </button>
+            </div>
           </div>
         </div>
 
