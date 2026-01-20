@@ -59,6 +59,9 @@ export default function DashboardPage() {
       if (activeContractor) params.contractor_id = activeContractor
       return penetrationsAPI.getAll(params).then(res => res.data)
     },
+    onSuccess: () => {
+      if (!demoMode) setLastUpdated(new Date())
+    }
   })
 
   // Fetch all contractors for the add form
@@ -99,7 +102,7 @@ export default function DashboardPage() {
     const interval = setInterval(() => {
       queryClient.invalidateQueries(['penetrations', currentProjectId]);
       queryClient.invalidateQueries(['dashboard', currentProjectId]);
-      setLastUpdated(new Date());
+      // lastUpdated will be set by onSuccess callback
     }, 30000); // 30 seconds
     
     return () => clearInterval(interval);
@@ -128,12 +131,13 @@ export default function DashboardPage() {
   };
 
   // Update last updated text every second
+  const [, setTick] = useState(0);
   useEffect(() => {
     const timer = setInterval(() => {
-      // Force re-render to update "X seconds ago" text
+      setTick(t => t + 1); // Force re-render to update "X seconds ago" text
     }, 1000);
     return () => clearInterval(timer);
-  }, [lastUpdated]);
+  }, []);
 
   // Handle demo updates (both updates and new pens)
   const handleDemoUpdate = (updatedPen) => {
